@@ -1,0 +1,215 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Enums ----------
+
+enum Role {
+  RUNNER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum Locale {
+  en
+  ar
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+  COMPLETED
+}
+
+enum RegistrationStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  REFUNDED
+}
+
+enum ImportStatus {
+  PENDING
+  PROCESSED
+  FAILED
+}
+
+// ---------- Users and auth ----------
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  phone        String?  @unique
+  passwordHash String
+  fullName     String
+  locale       Locale   @default(en)
+  role         Role     @default(RUNNER)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  runnerProfile RunnerProfile?
+  refreshTokens RefreshToken[]
+  registrations Registration[]
+  createdEvents Event[]        @relation("EventCreator")
+  resultImports ResultImport[]
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model RunnerProfile {
+  userId               String    @id
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dateOfBirth          DateTime?
+  gender               Gender?
+  country              String?
+  shirtSize            String?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+}
+
+// ---------- Events ----------
+
+model Event {
+  id                   String      @id @default(uuid())
+  slug                 String      @unique
+  titleEn              String
+  titleAr              String?
+  descriptionEn        String?
+  descriptionAr        String?
+  city                 String
+  venue                String?
+  startsAt             DateTime
+  registrationOpensAt  DateTime?
+  registrationClosesAt DateTime?
+  status               EventStatus @default(DRAFT)
+  createdById          String
+  createdBy            User        @relation("EventCreator", fields: [createdById], references: [id])
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+
+  categories  EventCategory[]
+  images      EventImage[]
+  resultImports ResultImport[]
+
+  @@index([status, startsAt])
+}
+
+model EventCategory {
+  id             String         @id @default(uuid())
+  eventId        String
+  event          Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name           String         // e.g. "5K", "10K", "Half Marathon", "Full Marathon"
+  distanceMeters Int
+  price          Decimal        @db.Decimal(10, 2)
+  currency       String         @default("USD")
+  capacity       Int
+
+  registrations  Registration[]
+
+  @@unique([eventId, name])
+}
+
+model EventImage {
+  id         String   @id @default(uuid())
+  eventId    String
+  event      Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  storageKey String   // object key in S3/R2/MinIO
+  captionEn  String?
+  captionAr  String?
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([eventId, sortOrder])
+}
+
+// ---------- Registrations and payments ----------
+
+model Registration {
+  id          String             @id @default(uuid())
+  userId      String
+  user        User               @relation(fields: [userId], references: [id])
+  categoryId  String
+  category    EventCategory      @relation(fields: [categoryId], references: [id])
+  bibNumber   Int?
+  status      RegistrationStatus @default(PENDING)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  payment     Payment?
+  result      Result?
+
+  @@unique([userId, categoryId])
+  @@unique([categoryId, bibNumber])
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  registrationId  String        @unique
+  registration    Registration  @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  amount          Decimal       @db.Decimal(10, 2)
+  currency        String
+  provider        String        // gateway name, decided in the payments phase
+  providerRef     String?
+  status          PaymentStatus @default(PENDING)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+// ---------- Results ----------
+
+model ResultImport {
+  id           String       @id @default(uuid())
+  eventId      String
+  event        Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  uploadedById String
+  uploadedBy   User         @relation(fields: [uploadedById], references: [id])
+  fileName     String
+  fileKey      String       // stored CSV or Excel file
+  status       ImportStatus @default(PENDING)
+  rowCount     Int          @default(0)
+  errors       Json?        // row-level validation errors
+  createdAt    DateTime     @default(now())
+  processedAt  DateTime?
+
+  @@index([eventId, createdAt])
+}
+
+model Result {
+  id              String       @id @default(uuid())
+  registrationId  String       @unique
+  registration    Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  finishTimeSecs  Int
+  overallRank     Int?
+  categoryRank    Int?
+  genderRank      Int?
+  importedAt      DateTime     @default(now())
+}

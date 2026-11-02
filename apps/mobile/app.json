@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Runner Platform",
+    "slug": "runner-platform",
+    "version": "0.1.0",
+    "scheme": "runnerplatform",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      "expo-router"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.runnerplatform.app"
+    },
+    "android": {
+      "package": "com.runnerplatform.app"
+    }
+  }
+}
