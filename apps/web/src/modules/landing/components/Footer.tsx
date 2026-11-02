@@ -1,19 +1,34 @@
-import Link from 'next/link';
-import type { Dictionary, Locale } from '../i18n';
+import Image from 'next/image';
+import type { Dictionary } from '../i18n';
+import { ORGANIZER } from '../data/events';
 
-export function Footer({ locale, t }: { locale: Locale; t: Dictionary['footer'] }) {
+export function Footer({ t, brand }: { t: Dictionary['footer']; brand: string }) {
+  const links = [
+    ...ORGANIZER.phones.map((phone) => ({ label: phone, href: `tel:${phone}` })),
+    { label: ORGANIZER.email, href: `mailto:${ORGANIZER.email}` },
+    { label: 'Facebook', href: ORGANIZER.social.facebook },
+    { label: 'Instagram', href: ORGANIZER.social.instagram },
+    { label: 'LinkedIn', href: ORGANIZER.social.linkedin },
+  ];
+
   return (
-    <footer className="site-footer">
+    <footer id="contact" className="site-footer">
       <div className="container">
-        <span>
-          © {new Date().getFullYear()} RunnerPlatform. {t.rights}
-        </span>
-        <nav>
-          <Link href={`/${locale}/terms`}>{t.terms}</Link>
-          <Link href={`/${locale}/privacy`}>{t.privacy}</Link>
-          <Link href={`/${locale}/contact`}>{t.contact}</Link>
-        </nav>
+        <Image src="/images/logo-white.png" alt={brand} width={1430} height={299} className="footer-logo" />
+        <div>
+          <h2>{t.contact}</h2>
+          <nav>
+            {links.map((link) => (
+              <a key={link.href} href={link.href} dir="ltr">
+                {link.label}
+              </a>
+            ))}
+          </nav>
+        </div>
       </div>
+      <p className="footer-copy">
+        © {new Date().getFullYear()} {brand}. {t.rights}
+      </p>
     </footer>
   );
 }

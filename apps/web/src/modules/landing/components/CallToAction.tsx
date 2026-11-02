@@ -1,15 +1,18 @@
-import Link from 'next/link';
-import type { Dictionary, Locale } from '../i18n';
+import type { Dictionary } from '../i18n';
+import { ORGANIZER } from '../data/events';
 
-export function CallToAction({ locale, t }: { locale: Locale; t: Dictionary['cta'] }) {
+export function CallToAction({ t }: { t: Dictionary['cta'] }) {
   return (
     <section className="cta">
       <div className="container">
         <h2>{t.title}</h2>
-        <p>{t.body}</p>
-        <Link href={`/${locale}/register`} className="btn btn-primary">
+        <blockquote>
+          <p>“{t.quote}”</p>
+          <cite>{t.author}</cite>
+        </blockquote>
+        <a href={`mailto:${ORGANIZER.email}`} className="btn btn-primary">
           {t.button}
-        </Link>
+        </a>
       </div>
     </section>
   );

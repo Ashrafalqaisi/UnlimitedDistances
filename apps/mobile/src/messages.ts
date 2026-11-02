@@ -1,63 +1,96 @@
-import type { Locale } from '@runner/shared';
+import type { EventStatus, Locale } from '@runner/shared';
 
 export type Lang = Locale;
 
 const en = {
-  brand: 'RunnerPlatform',
+  brand: 'Unlimited Distances',
   languageToggle: 'عربي',
-  heroTitle: 'Find your next race',
-  heroSubtitle: 'Discover marathons and road races near you, register in minutes, and track your results.',
-  browse: 'Browse events',
-  upcoming: 'Upcoming events',
-  register: 'Register',
-  from: 'From',
-  featuresTitle: 'Everything a runner needs',
-  features: [
-    {
-      title: 'Register in minutes',
-      body: 'Choose your distance, pay securely, and get your bib confirmed.',
-    },
-    {
-      title: 'Live results',
-      body: 'Find your finish time and ranking as soon as results are published.',
-    },
-    {
-      title: 'Your race history',
-      body: 'Keep every event, medal, and personal best in one profile.',
-    },
+  heroEyebrow: 'Organizing sports in Jordan',
+  heroTitle: 'Explore the adventure',
+  heroSubtitle: 'Desert marathons and forest trail runs across Jordan, from Wadi Rum to Wasfi Al Tal Forest.',
+  joinNow: 'Join now',
+  highlights: [
+    { value: '+2500', label: 'Participants' },
+    { value: '84 km', label: 'Longest track' },
+    { value: '2', label: 'Race series' },
   ],
-  comingSoon: 'Event details and registration are coming in the next step.',
+  racesTitle: 'Unlimited distance races',
+  racesSubtitle: 'Our signature events',
+  from: 'From',
+  details: 'Details',
+  status: {
+    soon: 'Registration opens soon',
+    open: 'Registration open',
+    closed: 'Registration closed',
+    finished: 'Event finished',
+  } satisfies Record<EventStatus, string>,
+  whyTitle: 'Why participate',
+  why: ['Be healthy', 'Stay strong', 'Be the fastest', 'Be one of our participants'],
+  previousTitle: 'Previous events',
+  quote: 'Running is a way of life.',
+  quoteAuthor: 'Coach Mohammad Al Swaiti, founder',
+  contactTitle: 'Contact us',
   footer: 'All rights reserved.',
+  // Event details
+  back: 'Back',
+  date: 'Date',
+  location: 'Location',
+  distancesTitle: 'Distances',
+  starts: 'Starts',
+  minAge: (age: number) => `Age ${age}+`,
+  feesTitle: 'Registration fees',
+  includesTitle: "What's included",
+  registrationWindow: (opens: string, closes: string) => `Registration: ${opens} – ${closes}`,
+  register: 'Register on Sajilni',
+  registrationUnavailable: 'Registration is not open',
+  moreOnWebsite: 'Full details on our website',
+  notFound: 'Event not found.',
 };
 
 export type Messages = typeof en;
 
 const ar: Messages = {
-  brand: 'منصة العدائين',
+  brand: 'مسافات بلا حدود',
   languageToggle: 'English',
-  heroTitle: 'اعثر على سباقك القادم',
-  heroSubtitle: 'اكتشف الماراثونات وسباقات الطرق القريبة منك، وسجّل خلال دقائق، وتابع نتائجك.',
-  browse: 'تصفح الفعاليات',
-  upcoming: 'الفعاليات القادمة',
-  register: 'سجّل الآن',
-  from: 'من',
-  featuresTitle: 'كل ما يحتاجه العداء',
-  features: [
-    {
-      title: 'سجّل في دقائق',
-      body: 'اختر المسافة وادفع بأمان، واستلم رقم السباق كتأكيد.',
-    },
-    {
-      title: 'نتائج فورية',
-      body: 'اعرف زمن وصولك وترتيبك فور نشر النتائج.',
-    },
-    {
-      title: 'سجل سباقاتك',
-      body: 'احفظ كل فعالية وميدالية وأفضل زمن لك في ملف واحد.',
-    },
+  heroEyebrow: 'تنظيم الفعاليات الرياضية في الأردن',
+  heroTitle: 'استكشف المغامرة',
+  heroSubtitle: 'ماراثونات صحراوية وسباقات جري في الغابات في أنحاء الأردن، من وادي رم إلى غابات وصفي التل.',
+  joinNow: 'انضم الآن',
+  highlights: [
+    { value: '+2500', label: 'مشارك' },
+    { value: '84 كم', label: 'أطول مسار' },
+    { value: '2', label: 'سلسلة سباقات' },
   ],
-  comingSoon: 'تفاصيل الفعالية والتسجيل ستكون متاحة في الخطوة القادمة.',
+  racesTitle: 'سباقات مسافات بلا حدود',
+  racesSubtitle: 'فعالياتنا الرئيسية',
+  from: 'ابتداءً من',
+  details: 'التفاصيل',
+  status: {
+    soon: 'التسجيل يفتح قريباً',
+    open: 'التسجيل مفتوح',
+    closed: 'التسجيل مغلق',
+    finished: 'انتهت الفعالية',
+  },
+  whyTitle: 'لماذا تشارك',
+  why: ['كن بصحة جيدة', 'ابقَ قوياً', 'كن الأسرع', 'كن أحد مشاركينا'],
+  previousTitle: 'فعاليات سابقة',
+  quote: 'الجري أسلوب حياة.',
+  quoteAuthor: 'المدرب محمد السويطي، المؤسس',
+  contactTitle: 'تواصل معنا',
   footer: 'جميع الحقوق محفوظة.',
+  back: 'رجوع',
+  date: 'التاريخ',
+  location: 'الموقع',
+  distancesTitle: 'المسافات',
+  starts: 'الانطلاق',
+  minAge: (age: number) => `العمر ${age}+`,
+  feesTitle: 'رسوم التسجيل',
+  includesTitle: 'تشمل الرسوم',
+  registrationWindow: (opens: string, closes: string) => `التسجيل: ${opens} – ${closes}`,
+  register: 'سجّل عبر سجلني',
+  registrationUnavailable: 'التسجيل غير متاح حالياً',
+  moreOnWebsite: 'التفاصيل الكاملة على موقعنا',
+  notFound: 'الفعالية غير موجودة.',
 };
 
 export const messages: Record<Lang, Messages> = { en, ar };

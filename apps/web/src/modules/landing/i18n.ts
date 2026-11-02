@@ -1,68 +1,61 @@
-import type { Locale } from '@runner/shared';
+import type { EventStatus, Locale } from '@runner/shared';
 
 export { defaultLocale, isLocale, locales, textDirection, type Locale } from '@runner/shared';
 
 const en = {
   meta: {
-    title: 'Runner Platform: races, registration and results',
-    description: 'Find marathons and road races near you, register in minutes, and track your results.',
+    title: 'Unlimited Distances: desert marathons and trail runs in Jordan',
+    description:
+      'Unlimited Distances organizes the Rum International Marathon and the Jordan Eco Trail Run. Explore the adventure.',
   },
   nav: {
-    events: 'Events',
-    howItWorks: 'How it works',
-    signIn: 'Sign in',
-    getStarted: 'Get started',
+    brand: 'Unlimited Distances',
+    races: 'Races',
+    why: 'Why participate',
+    previous: 'Previous events',
+    contact: 'Contact us',
   },
   hero: {
-    title: 'Find your next race',
+    eyebrow: 'Organizing sports in Jordan',
+    title: 'Explore the adventure',
     subtitle:
-      'Discover marathons and road races near you, register in minutes, and track your results.',
-    primaryCta: 'Browse events',
-    secondaryCta: 'Create free account',
+      'Desert marathons and forest trail runs across Jordan, from Wadi Rum to Wasfi Al Tal Forest.',
+    primaryCta: 'Join now',
+    secondaryCta: 'Contact us',
+    highlights: [
+      { value: '+2500', label: 'Participants' },
+      { value: '84 km', label: 'Longest track' },
+      { value: '2', label: 'Race series' },
+    ],
   },
   events: {
-    title: 'Upcoming events',
-    subtitle: 'Registration is open for these races',
-    viewAll: 'View all events',
-    register: 'Register',
+    eyebrow: 'Our signature events',
+    title: 'Unlimited distance races',
     from: 'From',
-    empty: 'No upcoming events yet.',
+    details: 'Race details',
+    status: {
+      soon: 'Registration opens soon',
+      open: 'Registration open',
+      closed: 'Registration closed',
+      finished: 'Event finished',
+    } satisfies Record<EventStatus, string>,
   },
-  features: {
-    title: 'Everything a runner needs',
-    items: [
-      {
-        title: 'Register in minutes',
-        body: 'Choose your distance, pay securely, and get your bib confirmed.',
-      },
-      {
-        title: 'Live results',
-        body: 'Find your finish time and ranking as soon as results are published.',
-      },
-      {
-        title: 'Your race history',
-        body: 'Keep every event, medal, and personal best in one profile.',
-      },
-    ],
+  why: {
+    title: 'Why participate',
+    items: ['Be healthy', 'Stay strong', 'Be the fastest', 'Be one of our participants'],
   },
-  howItWorks: {
-    title: 'How it works',
-    items: [
-      { title: 'Find an event', body: 'Browse upcoming races by city and distance.' },
-      { title: 'Register', body: 'Pick your category and complete checkout.' },
-      { title: 'Race and track', body: 'Get your bib and see your results after the race.' },
-    ],
+  previous: {
+    title: 'Previous events',
   },
   cta: {
-    title: 'Ready for your next start line?',
-    body: 'Create a free account and never miss a registration window.',
-    button: 'Create free account',
+    title: 'Run and discover yourself',
+    quote: 'Running is a way of life.',
+    author: 'Coach Mohammad Al Swaiti, founder',
+    button: 'Email us',
   },
   footer: {
     rights: 'All rights reserved.',
-    terms: 'Terms',
-    privacy: 'Privacy',
-    contact: 'Contact',
+    contact: 'Contact us',
   },
 };
 
@@ -70,63 +63,55 @@ export type Dictionary = typeof en;
 
 const ar: Dictionary = {
   meta: {
-    title: 'منصة العدائين: السباقات والتسجيل والنتائج',
-    description: 'اعثر على الماراثونات وسباقات الطرق القريبة منك، وسجّل خلال دقائق، وتابع نتائجك.',
+    title: 'مسافات بلا حدود: ماراثونات صحراوية وسباقات جري في الأردن',
+    description: 'تنظّم مسافات بلا حدود ماراثون رم الدولي وسباق الأردن البيئي. استكشف المغامرة.',
   },
   nav: {
-    events: 'الفعاليات',
-    howItWorks: 'كيف يعمل',
-    signIn: 'تسجيل الدخول',
-    getStarted: 'ابدأ الآن',
+    brand: 'مسافات بلا حدود',
+    races: 'السباقات',
+    why: 'لماذا تشارك',
+    previous: 'فعاليات سابقة',
+    contact: 'تواصل معنا',
   },
   hero: {
-    title: 'اعثر على سباقك القادم',
-    subtitle: 'اكتشف الماراثونات وسباقات الطرق القريبة منك، وسجّل خلال دقائق، وتابع نتائجك.',
-    primaryCta: 'تصفح الفعاليات',
-    secondaryCta: 'أنشئ حساباً مجانياً',
+    eyebrow: 'تنظيم الفعاليات الرياضية في الأردن',
+    title: 'استكشف المغامرة',
+    subtitle: 'ماراثونات صحراوية وسباقات جري في الغابات في أنحاء الأردن، من وادي رم إلى غابات وصفي التل.',
+    primaryCta: 'انضم الآن',
+    secondaryCta: 'تواصل معنا',
+    highlights: [
+      { value: '+2500', label: 'مشارك' },
+      { value: '84 كم', label: 'أطول مسار' },
+      { value: '2', label: 'سلسلة سباقات' },
+    ],
   },
   events: {
-    title: 'الفعاليات القادمة',
-    subtitle: 'التسجيل مفتوح لهذه السباقات',
-    viewAll: 'عرض كل الفعاليات',
-    register: 'سجّل الآن',
-    from: 'من',
-    empty: 'لا توجد فعاليات قادمة حالياً.',
+    eyebrow: 'فعالياتنا الرئيسية',
+    title: 'سباقات مسافات بلا حدود',
+    from: 'ابتداءً من',
+    details: 'تفاصيل السباق',
+    status: {
+      soon: 'التسجيل يفتح قريباً',
+      open: 'التسجيل مفتوح',
+      closed: 'التسجيل مغلق',
+      finished: 'انتهت الفعالية',
+    },
   },
-  features: {
-    title: 'كل ما يحتاجه العداء',
-    items: [
-      {
-        title: 'سجّل في دقائق',
-        body: 'اختر المسافة وادفع بأمان، واستلم رقم السباق كتأكيد.',
-      },
-      {
-        title: 'نتائج فورية',
-        body: 'اعرف زمن وصولك وترتيبك فور نشر النتائج.',
-      },
-      {
-        title: 'سجل سباقاتك',
-        body: 'احفظ كل فعالية وميدالية وأفضل زمن لك في ملف واحد.',
-      },
-    ],
+  why: {
+    title: 'لماذا تشارك',
+    items: ['كن بصحة جيدة', 'ابقَ قوياً', 'كن الأسرع', 'كن أحد مشاركينا'],
   },
-  howItWorks: {
-    title: 'كيف يعمل',
-    items: [
-      { title: 'ابحث عن فعالية', body: 'تصفح السباقات القادمة حسب المدينة والمسافة.' },
-      { title: 'سجّل', body: 'اختر فئتك وأكمل عملية الدفع.' },
-      { title: 'اركض وتابع', body: 'استلم رقم السباق واطّلع على نتائجك بعد السباق.' },
-    ],
+  previous: {
+    title: 'فعاليات سابقة',
   },
   cta: {
-    title: 'جاهز لخط البداية التالي؟',
-    body: 'أنشئ حساباً مجانياً ولن تفوتك أي فترة تسجيل.',
-    button: 'أنشئ حساباً مجانياً',
+    title: 'اركض واكتشف نفسك',
+    quote: 'الجري أسلوب حياة.',
+    author: 'المدرب محمد السويطي، المؤسس',
+    button: 'راسلنا',
   },
   footer: {
     rights: 'جميع الحقوق محفوظة.',
-    terms: 'الشروط',
-    privacy: 'الخصوصية',
     contact: 'تواصل معنا',
   },
 };

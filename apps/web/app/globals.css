@@ -1,11 +1,14 @@
 :root {
-  --brand: #0f766e;
-  --brand-dark: #115e59;
-  --accent: #f59e0b;
-  --ink: #0f172a;
-  --muted: #64748b;
-  --line: #e2e8f0;
-  --surface: #f8fafc;
+  /* Brand palette from the Unlimited Distances logo */
+  --brand: #bd6e29;
+  --brand-dark: #8a4e1b;
+  --brand-soft: #f6e9dc;
+  --accent: #bd6e29;
+  --ink: #141414;
+  --muted: #6b625a;
+  --line: #ebe1d6;
+  --surface: #faf6f1;
+  --success: #2f7d4f;
   --white: #ffffff;
   --radius: 14px;
   --container: 1120px;
@@ -37,6 +40,7 @@ h1,
 h2,
 h3 {
   line-height: 1.2;
+  font-weight: 900;
   margin: 0 0 0.5rem;
 }
 
@@ -65,8 +69,10 @@ section {
 
 .eyebrow {
   color: var(--brand);
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 /* ---------- Buttons ---------- */
@@ -118,14 +124,10 @@ section {
   border-bottom: 1px solid var(--line);
 }
 
-.brand {
-  font-weight: 800;
-  font-size: 1.2rem;
-  color: var(--ink);
-}
-
-.brand span {
-  color: var(--brand);
+.brand img {
+  display: block;
+  height: 40px;
+  width: auto;
 }
 
 .nav-links {
@@ -158,10 +160,40 @@ section {
 
 .hero {
   background:
-    radial-gradient(circle at 20% 20%, rgba(245, 158, 11, 0.18), transparent 40%),
-    linear-gradient(135deg, #0f766e 0%, #134e4a 100%);
+    linear-gradient(rgba(20, 20, 20, 0.35), rgba(20, 20, 20, 0.6)),
+    url('/images/rum-9th.jpg') center / cover no-repeat;
   color: var(--white);
-  padding-block: 6rem;
+  padding-block: 8rem 5rem;
+}
+
+.hero-eyebrow {
+  color: var(--brand-soft);
+  font-weight: 700;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-block-end: 0.75rem !important;
+}
+
+.highlights {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--ink);
+  color: var(--white);
+  text-align: center;
+  padding-block: 1.5rem;
+}
+
+.highlights strong {
+  display: block;
+  color: var(--brand);
+  font-size: 1.8rem;
+  font-weight: 900;
+}
+
+.highlights span {
+  opacity: 0.8;
+  font-size: 0.9rem;
 }
 
 .hero h1 {
@@ -218,9 +250,76 @@ section {
 }
 
 .card-banner {
-  height: 120px;
+  position: relative;
+  height: 200px;
   border-radius: 10px;
+  overflow: hidden;
   margin-block-end: 0.75rem;
+}
+
+.card-banner img {
+  object-fit: cover;
+}
+
+.badge {
+  position: absolute;
+  inset-block-start: 0.75rem;
+  inset-inline-start: 0.75rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(20, 20, 20, 0.6);
+  color: var(--white);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.badge-open {
+  background: var(--success);
+}
+
+.race-card .tagline {
+  color: var(--brand-dark);
+  font-style: italic;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0.5rem 0;
+  padding: 0;
+}
+
+.chips li {
+  background: var(--brand-soft);
+  color: var(--brand-dark);
+  border-radius: 999px;
+  padding: 0.15rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.gallery-item {
+  position: relative;
+  height: 220px;
+  margin: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.gallery-item img {
+  object-fit: cover;
+}
+
+.gallery-item figcaption {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  padding: 0.75rem 1rem;
+  background: rgba(20, 20, 20, 0.55);
+  color: var(--white);
+  font-weight: 700;
 }
 
 .card .meta {
@@ -274,28 +373,67 @@ section {
   text-align: center;
 }
 
-.cta p {
+.cta blockquote {
+  margin: 1rem auto 2rem;
+  max-width: 40ch;
+}
+
+.cta blockquote p {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.cta cite {
   color: var(--muted);
-  margin-block-end: 1.5rem;
+  font-style: normal;
 }
 
 .site-footer {
-  border-top: 1px solid var(--line);
-  padding-block: 2rem;
-  color: var(--muted);
-  font-size: 0.92rem;
+  background: var(--ink);
+  color: var(--white);
+  padding-block: 3rem 1.5rem;
 }
 
 .site-footer .container {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 2rem;
+}
+
+.footer-logo {
+  height: 48px;
+  width: auto;
+}
+
+.site-footer h2 {
+  font-size: 1.2rem;
 }
 
 .site-footer nav {
   display: flex;
-  gap: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.site-footer nav a {
+  color: var(--brand-soft);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 0.25rem 0.8rem;
+  font-size: 0.9rem;
+}
+
+.site-footer nav a:hover {
+  border-color: var(--brand);
+}
+
+.footer-copy {
+  text-align: center;
+  opacity: 0.6;
+  font-size: 0.85rem;
+  margin-block-start: 2rem;
 }
 
 /* ---------- Responsive ---------- */

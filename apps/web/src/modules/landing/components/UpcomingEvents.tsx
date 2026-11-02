@@ -1,9 +1,12 @@
-import Link from 'next/link';
+import Image from 'next/image';
 import type { Dictionary, Locale } from '../i18n';
 import {
-  formatEventDate,
+  eventImages,
+  formatDay,
   formatPrice,
+  getEventStatus,
   localizeEvent,
+  lowestFee,
   type EventSummary,
 } from '../data/events';
 
@@ -15,47 +18,42 @@ interface Props {
 
 export function UpcomingEvents({ locale, t, events }: Props) {
   return (
-    <section>
+    <section id="races">
       <div className="container">
         <div className="section-head">
+          <p className="eyebrow">{t.eyebrow}</p>
           <h2>{t.title}</h2>
-          <p>{t.subtitle}</p>
         </div>
 
-        {events.length === 0 ? (
-          <p className="muted">{t.empty}</p>
-        ) : (
-          <div className="card-grid">
-            {events.map((event) => {
-              const { title, city } = localizeEvent(event, locale);
-              return (
-                <article key={event.slug} className="card">
-                  <div
-                    className="card-banner"
-                    aria-hidden="true"
-                    style={{
-                      background: `linear-gradient(135deg, #0f766e, #f59e0b)`,
-                    }}
-                  />
-                  <h3>{title}</h3>
-                  <p className="meta">{city}</p>
-                  <p className="meta">{formatEventDate(event.startsAt, locale)}</p>
-                  <p className="price">
-                    {t.from} {formatPrice(event.priceFrom, event.currency, locale)}
-                  </p>
-                  <Link href={`/${locale}/events/${event.slug}`} className="btn btn-ghost">
-                    {t.register}
-                  </Link>
-                </article>
-              );
-            })}
-          </div>
-        )}
-
-        <div className="section-head" style={{ marginTop: '2.5rem', marginBottom: 0 }}>
-          <Link href={`/${locale}/events`} className="btn btn-ghost">
-            {t.viewAll}
-          </Link>
+        <div className="card-grid">
+          {events.map((event) => {
+            const { title, tagline, city } = localizeEvent(event, locale);
+            const status = getEventStatus(event);
+            return (
+              <article key={event.slug} className="card race-card">
+                <div className="card-banner">
+                  <Image src={eventImages[event.slug]} alt="" fill sizes="(max-width: 720px) 100vw, 50vw" />
+                  <span className={`badge ${status === 'open' ? 'badge-open' : ''}`}>{t.status[status]}</span>
+                </div>
+                <h3>{title}</h3>
+                <p className="tagline">{tagline}</p>
+                <p className="meta">
+                  {city} · {formatDay(event.startsAt, locale)}
+                </p>
+                <ul className="chips">
+                  {event.distances.map((distance) => (
+                    <li key={distance.name.en}>{distance.name[locale]}</li>
+                  ))}
+                </ul>
+                <p className="price">
+                  {t.from} {formatPrice(lowestFee(event), event.currency, locale)}
+                </p>
+                <a href={event.websiteUrl} className="btn btn-ghost" target="_blank" rel="noreferrer">
+                  {t.details}
+                </a>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>
