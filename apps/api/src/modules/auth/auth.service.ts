@@ -19,11 +19,14 @@ const VERIFY_TTL_HOURS = 24;
 const RESEND_COOLDOWN_SECONDS = 60;
 const DUMMY_HASH = bcrypt.hashSync('timing-equalizer', 12);
 
-const CONFLICT_MESSAGES: Record<string, string> = {
-  email: 'Email already registered',
-  username: 'Username already taken',
-  phone: 'Phone number already registered',
+// Clients map the code onto the form field; the message is a fallback for display
+const CONFLICTS: Record<string, { code: string; message: string }> = {
+  email: { code: 'EMAIL_TAKEN', message: 'Email already registered' },
+  username: { code: 'USERNAME_TAKEN', message: 'Username already taken' },
+  phone: { code: 'PHONE_TAKEN', message: 'Phone number already registered' },
 };
+
+const conflict = (field: string) => new ConflictException({ statusCode: 409, ...CONFLICTS[field] });
 
 @Injectable()
 export class AuthService {
@@ -49,7 +52,7 @@ export class AuthService {
     if (existing) {
       const field =
         existing.email === dto.email ? 'email' : existing.username === dto.username ? 'username' : 'phone';
-      throw new ConflictException(CONFLICT_MESSAGES[field]);
+      throw conflict(field);
     }
 
     let user;
@@ -70,8 +73,8 @@ export class AuthService {
       // A concurrent registration with the same email, username or phone won the race to the unique index
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         const fields = (error.meta?.target as string[] | undefined) ?? [];
-        const field = fields.find((name) => name in CONFLICT_MESSAGES) ?? 'email';
-        throw new ConflictException(CONFLICT_MESSAGES[field]);
+        const field = fields.find((name) => name in CONFLICTS) ?? 'email';
+        throw conflict(field);
       }
       throw error;
     }
@@ -103,6 +106,37 @@ export class AuthService {
       });
     }
     return this.issueTokens(user);
+  }
+
+  /** The signed-in user. Unverified users are allowed, so clients can show a "confirm your email" reminder. */
+  async me(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        fullName: true,
+        email: true,
+        username: true,
+        phone: true,
+        locale: true,
+        role: true,
+        isActive: true,
+        emailVerifiedAt: true,
+      },
+    });
+    // The access token can outlive a deleted or disabled account by up to its TTL
+    if (!user || !user.isActive) throw new UnauthorizedException();
+
+    return {
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      username: user.username,
+      phone: user.phone,
+      locale: user.locale,
+      role: user.role,
+      emailVerified: user.emailVerifiedAt !== null,
+    };
   }
 
   async verifyEmail(token: string) {

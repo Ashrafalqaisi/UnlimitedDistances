@@ -7,7 +7,7 @@ Each flow is analysed, diagrammed, documented and approved **before** it is impl
 
 | # | Flow | Analysis | Diagram | Documentation | Approval | Implementation | Document |
 |---|---|---|---|---|---|---|---|
-| 1 | Authentication & Session | Draft | Draft | Draft | Pending | Partial | [AUTHENTICATION_SESSION.md](authentication/AUTHENTICATION_SESSION.md) |
+| 1 | Authentication & Session | Done | Done | Done | Approved | In progress | [AUTHENTICATION_SESSION.md](authentication/AUTHENTICATION_SESSION.md) |
 | 2 | Runner Profile | Pending | Pending | Pending | Pending | Pending | — |
 | 3 | Event Discovery | Pending | Pending | Pending | Pending | Partial (static data) | — |
 | 4 | Event Registration | Pending | Pending | Pending | Pending | Pending | — |
@@ -31,4 +31,5 @@ These aren't flows of their own. Each one is documented inside the flows that ne
 
 | Date | Change |
 |---|---|
+| 2026-11-03 | Flow 1 approved (Q1–Q9 answered; Q8 email provider deferred). Implementation started. |
 | 2026-11-03 | Index created. Flow 1 analysis, diagrams and documentation drafted for review. |

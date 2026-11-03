@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft, awaiting review and approval |
+| **Status** | Approved 2026-11-03, implementation in progress |
 | **Platforms** | API (NestJS) · Web (Next.js) · Mobile (Expo) |
 | **Last updated** | 2026-11-03 |
 
@@ -10,7 +10,7 @@
 
 - ✅ **Implemented**: exists in the code today (verified against the source)
 - 🟡 **Proposed**: design suggestion, **not approved yet**, not built
-- ❓ **Open question**: needs a business decision (see [section 7](#7-open-questions))
+- ❓ **Open question**: business decision, now answered (see [section 7](#7-decisions))
 
 ---
 
@@ -22,7 +22,7 @@
 4. [Flow diagrams](#4-flow-diagrams)
 5. [Error handling](#5-error-handling)
 6. [Issues found in the current implementation](#6-issues-found-in-the-current-implementation)
-7. [Open questions](#7-open-questions)
+7. [Decisions](#7-decisions)
 8. [Implementation plan](#8-implementation-plan-after-approval)
 
 ---
@@ -43,7 +43,7 @@ Let a runner create an account, prove they own their email address, sign in on w
 | 1.4 | Session persistence and restore | ❌ Not built: tokens are thrown away after sign-in |
 | 1.5 | Token refresh (rotation and reuse detection) | ✅ API · ❌ Web · ❌ Mobile |
 | 1.6 | Sign out | ✅ API · ❌ Web · ❌ Mobile |
-| 1.7 | Current-user lookup (`/auth/me`) | 🟡 Proposed |
+| 1.7 | Current-user lookup (`/auth/me`) | ✅ API · 🟡 Web · 🟡 Mobile |
 | 1.8 | Forgot / reset password | 🟡 Proposed ❓ |
 
 ### 1.3 Actors and roles
@@ -77,7 +77,7 @@ Let a runner create an account, prove they own their email address, sign in on w
 | BR-4 | Phone: optional at sign-up. Spaces, dashes and brackets are removed; then 7–15 digits with an optional leading `+`; unique. Required before registering for an event (enforced in Flow 4). | ✅ (sign-up part) |
 | BR-5 | Password: 8–72 chars, with at least one uppercase letter, one digit and one special character. Confirmation must match (checked on the client only). | ✅ |
 | BR-6 | Every new account gets role `RUNNER`, `isActive = true`, the chosen locale (`en`/`ar`) and an empty runner profile. | ✅ |
-| BR-7 | After sign-up the runner is **signed in immediately** and a verification email is sent. | ✅ (tokens issued, not stored by clients) ❓ Q1 |
+| BR-7 | After sign-up the runner is **signed in immediately** and a verification email is sent. | ✅ (tokens issued, not stored by clients yet). Decided in Q1 |
 | BR-8 | Verification link: random one-time token, **valid 24 h**. Using it marks every outstanding link for that user as used. | ✅ |
 | BR-9 | Resend verification: silently ignored if the email is unknown, already verified or inactive, or if a link was sent less than **60 s** ago. Always returns success. | ✅ |
 | BR-10 | Sign-in accepts email **or** username plus password. | ✅ |
@@ -89,8 +89,9 @@ Let a runner create an account, prove they own their email address, sign in on w
 | BR-16 | Sign-out revokes the presented refresh token. Other devices stay signed in. | ✅ |
 | BR-17 | All API routes need a valid access token unless marked `@Public()`. Routes can also be limited to roles with `@Roles()`. | ✅ |
 | BR-18 | Mobile keeps the refresh token in the device's secure storage; web keeps tokens in httpOnly cookies. Tokens are never in `localStorage`. | 🟡 |
-| BR-19 | Repeated sign-in, sign-up, resend and reset attempts are rate-limited. | 🟡 ❓ Q6 |
-| BR-20 | Password reset: one-time link, short lifetime; a successful reset signs the user out on every device. | 🟡 ❓ Q2 |
+| BR-19 | Rate limits: 5 failed sign-ins per identifier per 2 minutes and 20 per IP per minute; sign-up, resend and forgot password 5 per IP per hour. | 🟡 (Q6) |
+| BR-20 | Password reset: one-time link valid 1 hour; a successful reset signs the user out on every device. | 🟡 (Q2) |
+| BR-21 | An unverified runner can browse and edit their profile but can't register for an event or pay until verified (enforced in Flow 4). | 🟡 (Q1) |
 
 ---
 
@@ -231,7 +232,7 @@ All paths start with `/api/v1`. Errors use NestJS's standard shape `{ statusCode
 | `POST /auth/resend-verification` | Public | `{ email }` | `204` (always) | `400` bad email format | ✅ |
 | `POST /auth/refresh` | Public | `{ refreshToken }` | `200 { accessToken, refreshToken }` | `401` | ✅ |
 | `POST /auth/logout` | Public | `{ refreshToken }` | `204` (always) | `400` | ✅ |
-| `GET /auth/me` | Bearer | — | `200 { id, fullName, email, username, phone, locale, role, emailVerified }` | `401` | 🟡 |
+| `GET /auth/me` | Bearer | — | `200 { id, fullName, email, username, phone, locale, role, emailVerified }` | `401` | ✅ |
 | `POST /auth/forgot-password` | Public | `{ email }` | `204` (always) | `400` | 🟡 ❓ Q2 |
 | `POST /auth/reset-password` | Public | `{ token, password }` | `204` | `400` invalid/expired/weak | 🟡 ❓ Q2 |
 
@@ -330,7 +331,7 @@ stateDiagram-v2
   Unverified --> Anonymous: sign out
 ```
 
-What an **Unverified** user is allowed to do depends on ❓ Q1.
+An **Unverified** user can browse and edit their profile, but can't register for events or pay (BR-21).
 
 ### 3.8 Security measures
 
@@ -585,7 +586,7 @@ flowchart TD
 |---|---|---|---|
 | Missing fields (client) | — | — | `required` / `fieldErrors.*` |
 | Server validation | 400 | — | API message (joined) |
-| Email / username / phone taken | 409 | 🟡 `EMAIL_TAKEN` · `USERNAME_TAKEN` · `PHONE_TAKEN` | `fieldErrors.emailTaken` etc. |
+| Email / username / phone taken | 409 | ✅ `EMAIL_TAKEN` · `USERNAME_TAKEN` · `PHONE_TAKEN` | `fieldErrors.emailTaken` etc. |
 | Wrong credentials | 401 | — | `invalidCredentials` |
 | Email not verified | 403 | `EMAIL_NOT_VERIFIED` | `notVerified` + `resend` |
 | Verification link bad | 400 | — | `verify.failed` |
@@ -601,31 +602,31 @@ flowchart TD
 |---|---|---|---|
 | I-1 | Web and mobile ignore the tokens returned by register and login. | Users never actually stay signed in. | Sub-flow 1.4 (this flow). |
 | I-2 | Register signs the user in while their email is unverified, but login refuses unverified users, and `refresh` doesn't check verification. An unverified user can stay signed in for as long as they keep refreshing. | Rules contradict each other. | Depends on ❓ Q1. |
-| I-3 | Clients find the field behind a `409` by matching English words in the message (`/email/i`). | Breaks if the message changes or is translated. | API returns `code` (`EMAIL_TAKEN` …) and clients map on `code`. |
-| I-4 | Validation patterns are written twice (`auth.dto.ts` and `shared/validation.ts`). | They can drift apart. | API imports the patterns from `@runner/shared`. |
+| I-3 | Clients find the field behind a `409` by matching English words in the message (`/email/i`). | Breaks if the message changes or is translated. | ✅ Fixed: API returns `code` (`EMAIL_TAKEN` …) and web and mobile map on `code`. |
+| I-4 | Validation patterns are written twice (`auth.dto.ts` and `shared/validation.ts`). | They can drift apart. | Deferred: `@runner/shared` ships TypeScript source only, which the CommonJS API build can't load. Needs a build step for the shared package first. |
 | I-5 | No rate limiting on login, register or resend. | Brute force, email spam. | Redis-backed throttling (Redis is already in docker-compose). |
 | I-6 | A disabled account keeps its current access token until it expires (≤ 15 min). | Short delay before a block takes effect. | Accept, or check `isActive` in `JwtStrategy.validate` (costs one DB query per request). |
 | I-7 | No mobile verify-email screen; links always open the web app. | Mobile runners land in a browser. | ❓ Q3. |
 | I-8 | `MailService` only logs. | No real emails sent. | ❓ Q8, choose a provider. |
-| I-9 | No Prisma migrations are committed. | Schema changes aren't reproducible. | Create a baseline migration before adding `PasswordResetToken`. |
+| I-9 | No Prisma migrations are committed. | Schema changes aren't reproducible. | ✅ Fixed: baseline `prisma/migrations/0_init` generated from the schema. |
 | I-10 | No automated tests for auth. | Regressions go unnoticed. | Unit tests for `AuthService` and e2e tests for the endpoints. |
 
 ---
 
-## 7. Open questions
+## 7. Decisions
 
-These need your decision before approval.
+All questions were answered on 2026-11-03. Q8 is deferred and doesn't block this flow: emails keep going to the log until a provider is chosen.
 
-| # | Question | Proposal |
+| # | Question | Decision |
 |---|---|---|
-| **Q1** | After sign-up, should an **unverified** runner be signed in? What can they do before verifying? | Keep auto sign-in so sign-up feels smooth. Allow browsing and editing the profile. **Block event registration and payment** until verified (enforced in Flow 4). Make `refresh` keep working for unverified users, and expose `emailVerified` in `/me` so the client can show a banner. |
+| **Q1** | After sign-up, should an **unverified** runner be signed in? What can they do before verifying? | Keep automatic sign-in. Allow browsing and editing the profile. **Block event registration and payment** until verified (enforced in Flow 4). `refresh` keeps working for unverified users, and `/me` returns `emailVerified` so the client can show a reminder banner. |
 | **Q2** | Include **forgot / reset password** in Flow 1? | Yes, with a 1-hour link that signs the user out everywhere. |
-| **Q3** | Should verification and reset links open the **mobile app** when installed? | Not for now: the web page works on any phone. Universal / App Links can come later and need the production domain. |
+| **Q3** | Should verification and reset links open the **mobile app** when installed? | Later, once the production domain exists. For now links open the web page. |
 | **Q4** | Access token 15 min, refresh token 30 days: OK? Do we need "remember me"? | Keep 15 min / 30 days, no "remember me". |
-| **Q5** | Should **change password** (while signed in) and **sign out of all devices** be part of this flow or of Runner Profile? | Runner Profile (Flow 2). |
-| **Q6** | Rate-limit thresholds? | Login: 5 failures per identifier per 15 min, plus 20 per IP per minute. Register / resend / forgot: 5 per IP per hour. |
-| **Q7** | Is it acceptable that sign-up reveals "email already registered"? | Yes. It's normal practice and sign-in already hides it. |
-| **Q8** | Which **email provider** (SES, Resend, SMTP from your host)? Which sender address? | Your choice. The code only changes inside `MailService`. |
+| **Q5** | Should **change password** and **sign out of all devices** be part of this flow or of Runner Profile? | Runner Profile (Flow 2). |
+| **Q6** | Rate-limit thresholds? | Login: 5 failures per identifier per **2 minutes**, and 20 per IP per minute. Register, resend and forgot: 5 per IP per hour. |
+| **Q7** | Is it acceptable that sign-up reveals "email already registered"? | Yes. It's common practice and sign-in already hides it. |
+| **Q8** | Which **email provider** and sender address? | Deferred, to be decided later. Only `MailService` will change. |
 | **Q9** | Should the web app use the **BFF cookie** approach ([ADR-001](../../decisions/ARCHITECTURE_DECISIONS.md#adr-001-session-storage-on-web-and-mobile))? | Yes. |
 
 ---
@@ -634,11 +635,11 @@ These need your decision before approval.
 
 Ordered so that each step can be tested on its own.
 
-1. **API:** baseline Prisma migration (I-9). Add `GET /auth/me`. Add `code` to `409` errors (I-3). Import shared validation patterns (I-4).
+1. ✅ **API:** baseline Prisma migration (I-9). Add `GET /auth/me`. Add `code` to `409` errors (I-3). (I-4 deferred, see section 6.)
 2. **Shared:** generic `request()`, `refresh`, `logout`, `getMe`, and the authorized client with single-flight refresh.
 3. **Mobile:** add `expo-secure-store` with `npx expo install`. Build `AuthProvider` and `useAuth`. Connect login and register. Header user menu and sign out.
 4. **Web:** BFF route handlers with cookies. Server-side `getSession()`. Connect login and register. Header user menu and sign out.
 5. **API:** rate limiting (Q6).
-6. **Forgot / reset password** across API, web and mobile (if Q2 = yes).
+6. **Forgot / reset password** across API, web and mobile.
 7. **Tests:** `AuthService` unit tests and endpoint e2e tests.
 8. Run lint and typecheck on all workspaces, then update this document from "Proposed" to "Implemented".

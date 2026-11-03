@@ -6,7 +6,7 @@ Status: `Proposed` → `Accepted` / `Rejected` / `Superseded`.
 | ID | Decision | Status | Flow |
 |---|---|---|---|
 | ADR-000 | Monorepo: NestJS API, Next.js web, Expo mobile, shared TS package | Accepted (existing) | — |
-| ADR-001 | Session storage on web and mobile | Proposed | 1 |
+| ADR-001 | Session storage on web and mobile | Accepted | 1 |
 
 ---
 
@@ -20,7 +20,7 @@ pnpm workspaces + Turborepo. `apps/api` (NestJS 11, Prisma 6, PostgreSQL), `apps
 
 ## ADR-001: Session storage on web and mobile
 
-**Status:** Proposed, awaiting approval (Flow 1, Q9)
+**Status:** Accepted 2026-11-03 (Flow 1, Q9)
 
 ### Context
 
@@ -41,7 +41,7 @@ The API issues a short-lived JWT access token (15 min) and a long-lived opaque r
 | **A. Refresh token in `expo-secure-store`, access token in memory** | OS Keychain / Keystore encryption; recommended Expo module | Requires a development build if not bundled in Expo Go (verify against SDK 58 docs) |
 | B. AsyncStorage | Simple | Unencrypted |
 
-### Decision (proposed)
+### Decision
 
 - **Web:** Option A (BFF with httpOnly, Secure, SameSite=Lax cookies).
 - **Mobile:** Option A (`expo-secure-store`).

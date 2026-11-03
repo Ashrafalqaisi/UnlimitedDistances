@@ -25,11 +25,11 @@ const emptyForm: RegisterForm = {
   confirmPassword: '',
 };
 
-/** Maps the API's "already registered" conflicts onto the field they belong to. */
-function conflictErrors(message: string): FieldErrors | null {
-  if (/email/i.test(message)) return { email: 'emailTaken' };
-  if (/username/i.test(message)) return { username: 'usernameTaken' };
-  if (/phone/i.test(message)) return { phone: 'phoneTaken' };
+/** Maps the API's "already registered" conflict codes onto the field they belong to. */
+function conflictErrors(code: string | undefined): FieldErrors | null {
+  if (code === 'EMAIL_TAKEN') return { email: 'emailTaken' };
+  if (code === 'USERNAME_TAKEN') return { username: 'usernameTaken' };
+  if (code === 'PHONE_TAKEN') return { phone: 'phoneTaken' };
   return null;
 }
 
@@ -72,7 +72,7 @@ export function RegisterScreen() {
       Alert.alert(t.register.welcomeTitle, t.register.welcomeMessage(email), [{ text: t.register.ok }]);
       router.replace('/');
     } catch (error) {
-      const conflict = error instanceof ApiError && error.status === 409 ? conflictErrors(error.message) : null;
+      const conflict = error instanceof ApiError && error.status === 409 ? conflictErrors(error.code) : null;
       if (conflict) {
         setErrors(conflict);
         setFormError(t.register.fixErrors);

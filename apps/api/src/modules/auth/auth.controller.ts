@@ -1,6 +1,6 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { Public } from '../../common/decorators';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { CurrentUser, Public } from '../../common/decorators';
 import { AuthService } from './auth.service';
 import {
   LoginDto,
@@ -26,6 +26,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   login(@Body() dto: LoginDto) {
     return this.auth.login(dto);
+  }
+
+  @ApiBearerAuth()
+  @Get('me')
+  me(@CurrentUser() user: { id: string }) {
+    return this.auth.me(user.id);
   }
 
   @Public()
