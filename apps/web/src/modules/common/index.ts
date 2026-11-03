@@ -2,6 +2,7 @@
 export { Footer } from './components/Footer';
 export { Header } from './components/Header';
 export { API_URL } from './config';
+export { eventImages } from './images';
 export {
   defaultLocale,
   getCommonDictionary,

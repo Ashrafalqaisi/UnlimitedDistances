@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import type { Locale } from '@/modules/common';
 import type { HomeDictionary } from '../i18n';
 import {
@@ -49,9 +50,9 @@ export function Races({ locale, t, events }: Props) {
                 <p className="price">
                   {t.from} {formatPrice(lowestFee(event), event.currency, locale)}
                 </p>
-                <a href={event.websiteUrl} className="btn btn-ghost" target="_blank" rel="noreferrer">
+                <Link href={`/${locale}/events/${event.slug}`} className="btn btn-ghost">
                   {t.details}
-                </a>
+                </Link>
               </article>
             );
           })}
