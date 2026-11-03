@@ -2,3 +2,4 @@
 export * from './locale';
 export * from './events';
 export * from './api';
+export * from './validation';

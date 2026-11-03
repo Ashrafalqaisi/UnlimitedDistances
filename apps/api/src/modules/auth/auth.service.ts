@@ -1,29 +1,64 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Prisma, Role } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { createHash, randomBytes } from 'node:crypto';
+import { MailService } from '../../mail/mail.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { LoginDto, RegisterDto } from './dto/auth.dto';
 
 const REFRESH_TTL_DAYS = 30;
+const VERIFY_TTL_HOURS = 24;
+const RESEND_COOLDOWN_SECONDS = 60;
+const DUMMY_HASH = bcrypt.hashSync('timing-equalizer', 12);
+
+const CONFLICT_MESSAGES: Record<string, string> = {
+  email: 'Email already registered',
+  username: 'Username already taken',
+  phone: 'Phone number already registered',
+};
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
+    private readonly mail: MailService,
+    private readonly config: ConfigService,
   ) {}
 
+  /** Creates the account, emails a verification link, and signs the runner in straight away. */
   async register(dto: RegisterDto) {
-    const exists = await this.prisma.user.findUnique({ where: { email: dto.email } });
-    if (exists) throw new ConflictException('Email already registered');
+    const existing = await this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: dto.email },
+          { username: dto.username },
+          ...(dto.phone ? [{ phone: dto.phone }] : []),
+        ],
+      },
+      select: { email: true, username: true },
+    });
+    if (existing) {
+      const field =
+        existing.email === dto.email ? 'email' : existing.username === dto.username ? 'username' : 'phone';
+      throw new ConflictException(CONFLICT_MESSAGES[field]);
+    }
 
     let user;
     try {
       user = await this.prisma.user.create({
         data: {
           email: dto.email,
+          username: dto.username,
+          phone: dto.phone,
           passwordHash: await bcrypt.hash(dto.password, 12),
           fullName: dto.fullName,
           locale: dto.locale ?? 'en',
@@ -32,24 +67,80 @@ export class AuthService {
         },
       });
     } catch (error) {
-      // A concurrent registration with the same email won the race to the unique index
+      // A concurrent registration with the same email, username or phone won the race to the unique index
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        throw new ConflictException('Email already registered');
+        const fields = (error.meta?.target as string[] | undefined) ?? [];
+        const field = fields.find((name) => name in CONFLICT_MESSAGES) ?? 'email';
+        throw new ConflictException(CONFLICT_MESSAGES[field]);
       }
       throw error;
     }
+
+    await this.sendVerificationEmail(user);
     return this.issueTokens(user);
   }
 
   async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
-    const passwordOk = user ? await bcrypt.compare(dto.password, user.passwordHash) : false;
+    // Usernames cannot contain "@", so the identifier's shape says which column to look in
+    const user = await this.prisma.user.findUnique({
+      where: dto.identifier.includes('@') ? { email: dto.identifier } : { username: dto.identifier },
+    });
+    // Compare against a dummy hash for unknown users so response time doesn't reveal which accounts exist
+    const passwordOk = await bcrypt.compare(dto.password, user?.passwordHash ?? DUMMY_HASH);
 
-    // Same error for unknown email, wrong password, and disabled account
+    // Same error for unknown email or username, wrong password, and disabled account
     if (!user || !passwordOk || !user.isActive) {
       throw new UnauthorizedException('Invalid credentials');
     }
+    // Checked only after the password, so this answer never reveals anything to someone without it.
+    // The email is returned so the client can offer to resend the link when the runner typed a username.
+    if (!user.emailVerifiedAt) {
+      throw new ForbiddenException({
+        statusCode: 403,
+        code: 'EMAIL_NOT_VERIFIED',
+        message: 'Verify your email before signing in',
+        email: user.email,
+      });
+    }
     return this.issueTokens(user);
+  }
+
+  async verifyEmail(token: string) {
+    const stored = await this.prisma.emailVerificationToken.findUnique({
+      where: { tokenHash: this.hash(token) },
+    });
+    if (!stored || stored.usedAt || stored.expiresAt < new Date()) {
+      throw new BadRequestException('Verification link is invalid or has expired');
+    }
+
+    const now = new Date();
+    await this.prisma.$transaction([
+      // Mark every outstanding link for this user as used, not just this one
+      this.prisma.emailVerificationToken.updateMany({
+        where: { userId: stored.userId, usedAt: null },
+        data: { usedAt: now },
+      }),
+      this.prisma.user.updateMany({
+        where: { id: stored.userId, emailVerifiedAt: null },
+        data: { emailVerifiedAt: now },
+      }),
+    ]);
+  }
+
+  /** Always succeeds silently, so the endpoint can't be used to find out which emails are registered. */
+  async resendVerification(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user || user.emailVerifiedAt || !user.isActive) return;
+
+    const recent = await this.prisma.emailVerificationToken.findFirst({
+      where: {
+        userId: user.id,
+        createdAt: { gt: new Date(Date.now() - RESEND_COOLDOWN_SECONDS * 1000) },
+      },
+    });
+    if (recent) return;
+
+    await this.sendVerificationEmail(user);
   }
 
   /** Rotates the refresh token: the presented one is revoked and a new pair is issued. */
@@ -86,6 +177,30 @@ export class AuthService {
     await this.prisma.refreshToken.updateMany({
       where: { tokenHash: this.hash(refreshToken), revokedAt: null },
       data: { revokedAt: new Date() },
+    });
+  }
+
+  private async sendVerificationEmail(user: { id: string; email: string; fullName: string; locale: string }) {
+    // Opaque random token; only its hash is stored, like refresh tokens.
+    const token = randomBytes(32).toString('base64url');
+    await this.prisma.emailVerificationToken.create({
+      data: {
+        userId: user.id,
+        tokenHash: this.hash(token),
+        expiresAt: new Date(Date.now() + VERIFY_TTL_HOURS * 60 * 60 * 1000),
+      },
+    });
+
+    const webUrl = this.config.get<string>('WEB_URL', 'http://localhost:3001');
+    const link = `${webUrl}/${user.locale}/verify-email?token=${token}`;
+    const arabic = user.locale === 'ar';
+
+    await this.mail.send({
+      to: user.email,
+      subject: arabic ? 'أكّد بريدك الإلكتروني - مسافات بلا حدود' : 'Confirm your email - Unlimited Distances',
+      text: arabic
+        ? `مرحباً ${user.fullName}،\n\nافتح الرابط التالي لتأكيد بريدك الإلكتروني:\n${link}\n\nينتهي الرابط خلال ${VERIFY_TTL_HOURS} ساعة.`
+        : `Hi ${user.fullName},\n\nOpen this link to confirm your email:\n${link}\n\nThe link expires in ${VERIFY_TTL_HOURS} hours.`,
     });
   }
 

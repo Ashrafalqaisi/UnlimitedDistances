@@ -55,22 +55,25 @@ enum ImportStatus {
 // ---------- Users and auth ----------
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  phone        String?  @unique
-  passwordHash String
-  fullName     String
-  locale       Locale   @default(en)
-  role         Role     @default(RUNNER)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String    @id @default(uuid())
+  email           String    @unique // stored lowercase
+  emailVerifiedAt DateTime?
+  username        String    @unique // stored lowercase
+  phone           String?   @unique // optional at sign-up, required before registering for an event
+  passwordHash    String
+  fullName        String
+  locale          Locale    @default(en)
+  role            Role      @default(RUNNER)
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  runnerProfile RunnerProfile?
-  refreshTokens RefreshToken[]
-  registrations Registration[]
-  createdEvents Event[]        @relation("EventCreator")
-  resultImports ResultImport[]
+  runnerProfile           RunnerProfile?
+  refreshTokens           RefreshToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  registrations           Registration[]
+  createdEvents           Event[]                  @relation("EventCreator")
+  resultImports           ResultImport[]
 }
 
 model RefreshToken {
@@ -83,6 +86,18 @@ model RefreshToken {
   createdAt DateTime  @default(now())
 
   @@index([userId])
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model RunnerProfile {

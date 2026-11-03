@@ -1,3 +1,4 @@
+import { getAuthDictionary, WelcomeNotice } from '@/modules/auth';
 import type { Locale } from '@/modules/common';
 import { getEvents } from './data/events';
 import { getHomeDictionary } from './i18n';
@@ -10,9 +11,11 @@ import { WhyParticipate } from './components/WhyParticipate';
 // Header and footer come from the shared locale layout
 export function HomePage({ locale }: { locale: Locale }) {
   const t = getHomeDictionary(locale);
+  const { register } = getAuthDictionary(locale);
 
   return (
     <>
+      <WelcomeNotice title={register.welcomeTitle} message={register.welcomeMessage} dismiss={register.dismiss} />
       <Hero t={t.hero} />
       <Races locale={locale} t={t.events} events={getEvents()} />
       <WhyParticipate t={t.why} />

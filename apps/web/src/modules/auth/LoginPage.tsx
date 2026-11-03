@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { Locale } from '@/modules/common';
 import { LoginForm } from './components/LoginForm';
 import { getAuthDictionary } from './i18n';
@@ -12,6 +13,9 @@ export function LoginPage({ locale }: { locale: Locale }) {
         <h1>{t.title}</h1>
         <p className="muted">{t.subtitle}</p>
         <LoginForm t={t} />
+        <p className="auth-switch">
+          {t.noAccount} <Link href={`/${locale}/register`}>{t.createAccount}</Link>
+        </p>
       </div>
     </section>
   );
