@@ -1,6 +1,6 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 import type { TextStyle, ViewStyle } from 'react-native';
-import { messages, type Lang } from '@/messages';
+import { commonMessages, type Lang } from './messages';
 
 const LanguageContext = createContext<{ lang: Lang; setLang: (lang: Lang) => void } | null>(null);
 
@@ -10,7 +10,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }
 
-export function useLanguage() {
+/**
+ * Current language plus direction-aware styles. Pass a module's message table
+ * to get its strings for the current language as `t`.
+ */
+export function useLanguage<T = undefined>(messages?: Record<Lang, T>) {
   const context = useContext(LanguageContext);
   if (!context) throw new Error('useLanguage must be used inside LanguageProvider');
   const { lang, setLang } = context;
@@ -26,7 +30,8 @@ export function useLanguage() {
   return {
     lang,
     isRTL,
-    t: messages[lang],
+    t: messages?.[lang] as T,
+    common: commonMessages[lang],
     text,
     row,
     toggle: () => setLang(isRTL ? 'en' : 'ar'),

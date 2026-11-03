@@ -1,6 +1,6 @@
-import type { Dictionary } from '../i18n';
+import type { HomeDictionary } from '../i18n';
 
-export function Features({ t }: { t: Dictionary['why'] }) {
+export function WhyParticipate({ t }: { t: HomeDictionary['why'] }) {
   return (
     <section id="why" style={{ background: 'var(--surface)' }}>
       <div className="container">

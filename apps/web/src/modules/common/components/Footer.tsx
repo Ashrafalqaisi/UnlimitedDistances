@@ -1,8 +1,8 @@
 import Image from 'next/image';
-import type { Dictionary } from '../i18n';
-import { ORGANIZER } from '../data/events';
+import { ORGANIZER } from '@runner/shared';
+import type { CommonDictionary } from '../i18n';
 
-export function Footer({ t, brand }: { t: Dictionary['footer']; brand: string }) {
+export function Footer({ t, brand }: { t: CommonDictionary['footer']; brand: string }) {
   const links = [
     ...ORGANIZER.phones.map((phone) => ({ label: phone, href: `tel:${phone}` })),
     { label: ORGANIZER.email, href: `mailto:${ORGANIZER.email}` },

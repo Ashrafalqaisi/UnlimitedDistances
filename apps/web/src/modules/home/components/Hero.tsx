@@ -1,6 +1,6 @@
-import type { Dictionary } from '../i18n';
+import type { HomeDictionary } from '../i18n';
 
-export function Hero({ t }: { t: Dictionary['hero'] }) {
+export function Hero({ t }: { t: HomeDictionary['hero'] }) {
   return (
     <>
       <section className="hero">

@@ -1,8 +1,9 @@
 import Image from 'next/image';
-import type { Dictionary, Locale } from '../i18n';
+import type { Locale } from '@/modules/common';
+import type { HomeDictionary } from '../i18n';
 import { eventImages, PAST_EDITIONS } from '../data/events';
 
-export function PreviousEvents({ locale, t }: { locale: Locale; t: Dictionary['previous'] }) {
+export function PreviousEvents({ locale, t }: { locale: Locale; t: HomeDictionary['previous'] }) {
   return (
     <section id="previous">
       <div className="container">

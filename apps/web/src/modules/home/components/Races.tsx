@@ -1,5 +1,6 @@
 import Image from 'next/image';
-import type { Dictionary, Locale } from '../i18n';
+import type { Locale } from '@/modules/common';
+import type { HomeDictionary } from '../i18n';
 import {
   eventImages,
   formatDay,
@@ -12,11 +13,11 @@ import {
 
 interface Props {
   locale: Locale;
-  t: Dictionary['events'];
+  t: HomeDictionary['events'];
   events: EventSummary[];
 }
 
-export function UpcomingEvents({ locale, t, events }: Props) {
+export function Races({ locale, t, events }: Props) {
   return (
     <section id="races">
       <div className="container">

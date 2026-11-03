@@ -1,10 +1,10 @@
 import { notFound } from 'next/navigation';
-import { LandingPage } from '@/modules/landing';
-import { isLocale } from '@/modules/landing/i18n';
+import { isLocale } from '@/modules/common';
+import { HomePage } from '@/modules/home';
 
-export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
 
-  return <LandingPage locale={locale} />;
+  return <HomePage locale={locale} />;
 }

@@ -1,7 +1,7 @@
-import type { Dictionary } from '../i18n';
+import type { HomeDictionary } from '../i18n';
 import { ORGANIZER } from '../data/events';
 
-export function CallToAction({ t }: { t: Dictionary['cta'] }) {
+export function CallToAction({ t }: { t: HomeDictionary['cta'] }) {
   return (
     <section className="cta">
       <div className="container">

@@ -1,20 +1,7 @@
-import type { EventStatus, Locale } from '@runner/shared';
-
-export { defaultLocale, isLocale, locales, textDirection, type Locale } from '@runner/shared';
+import type { EventStatus } from '@runner/shared';
+import type { Locale } from '@/modules/common';
 
 const en = {
-  meta: {
-    title: 'Unlimited Distances: desert marathons and trail runs in Jordan',
-    description:
-      'Unlimited Distances organizes the Rum International Marathon and the Jordan Eco Trail Run. Explore the adventure.',
-  },
-  nav: {
-    brand: 'Unlimited Distances',
-    races: 'Races',
-    why: 'Why participate',
-    previous: 'Previous events',
-    contact: 'Contact us',
-  },
   hero: {
     eyebrow: 'Organizing sports in Jordan',
     title: 'Explore the adventure',
@@ -53,26 +40,11 @@ const en = {
     author: 'Coach Mohammad Al Swaiti, founder',
     button: 'Email us',
   },
-  footer: {
-    rights: 'All rights reserved.',
-    contact: 'Contact us',
-  },
 };
 
-export type Dictionary = typeof en;
+export type HomeDictionary = typeof en;
 
-const ar: Dictionary = {
-  meta: {
-    title: 'مسافات بلا حدود: ماراثونات صحراوية وسباقات جري في الأردن',
-    description: 'تنظّم مسافات بلا حدود ماراثون رم الدولي وسباق الأردن البيئي. استكشف المغامرة.',
-  },
-  nav: {
-    brand: 'مسافات بلا حدود',
-    races: 'السباقات',
-    why: 'لماذا تشارك',
-    previous: 'فعاليات سابقة',
-    contact: 'تواصل معنا',
-  },
+const ar: HomeDictionary = {
   hero: {
     eyebrow: 'تنظيم الفعاليات الرياضية في الأردن',
     title: 'استكشف المغامرة',
@@ -110,14 +82,10 @@ const ar: Dictionary = {
     author: 'المدرب محمد السويطي، المؤسس',
     button: 'راسلنا',
   },
-  footer: {
-    rights: 'جميع الحقوق محفوظة.',
-    contact: 'تواصل معنا',
-  },
 };
 
-const dictionaries: Record<Locale, Dictionary> = { en, ar };
+const dictionaries: Record<Locale, HomeDictionary> = { en, ar };
 
-export function getDictionary(locale: Locale): Dictionary {
+export function getHomeDictionary(locale: Locale): HomeDictionary {
   return dictionaries[locale];
 }
