@@ -19,5 +19,8 @@
   "devDependencies": {
     "turbo": "^2.3.0",
     "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "playwright": "^1.65.0"
   }
 }

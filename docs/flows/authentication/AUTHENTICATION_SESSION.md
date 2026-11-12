@@ -169,7 +169,7 @@ flowchart LR
 
   subgraph Shared["packages/shared"]
     SV["validation.ts ✅"]
-    SA["api.ts ✅ login · register · verify · resend<br/>🟡 authorized request + refresh"]
+    SA["api.ts ✅ login · register · verify · resend<br/>✅ authorized request + refresh"]
   end
 
   subgraph API["apps/api (NestJS) /api/v1"]
@@ -307,7 +307,7 @@ All tables except `PasswordResetToken` ✅ exist in `apps/api/prisma/schema.pris
 - Server components read the cookie to render the header and to protect pages server-side.
 - The existing middleware already skips `/api`, so locale redirects won't touch these routes.
 
-**Shared client** (`packages/shared/src/api.ts`)
+**Shared client** (`packages/shared/src/api.ts`) ✅
 
 - Add a generic `request(method, path, { body, accessToken })`.
 - Add `createAuthedClient({ getAccessToken, refresh, onSignedOut })`. It retries once after `401`, and concurrent calls share one refresh.
@@ -636,7 +636,7 @@ All questions were answered on 2026-11-03. Q8 is deferred and doesn't block this
 Ordered so that each step can be tested on its own.
 
 1. ✅ **API:** baseline Prisma migration (I-9). Add `GET /auth/me`. Add `code` to `409` errors (I-3). (I-4 deferred, see section 6.)
-2. **Shared:** generic `request()`, `refresh`, `logout`, `getMe`, and the authorized client with single-flight refresh.
+2. ✅ **Shared:** generic `request()`, `refresh`, `logout`, `getMe`, and the authorized client (`createAuthedClient`) with single-flight refresh.
 3. **Mobile:** add `expo-secure-store` with `npx expo install`. Build `AuthProvider` and `useAuth`. Connect login and register. Header user menu and sign out.
 4. **Web:** BFF route handlers with cookies. Server-side `getSession()`. Connect login and register. Header user menu and sign out.
 5. **API:** rate limiting (Q6).

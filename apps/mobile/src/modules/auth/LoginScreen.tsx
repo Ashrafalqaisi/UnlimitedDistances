@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { Link } from 'expo-router';
 import { ApiError, login, resendVerification } from '@runner/shared';
-import { API_URL, colors, Page, useLanguage } from '@/modules/common';
+import { API_URL, Button, Screen, useLanguage } from '@/modules/common';
 import { FormField } from './components/FormField';
 import { authMessages } from './messages';
 import { authStyles as styles } from './styles';
@@ -63,33 +63,37 @@ export function LoginScreen() {
   }
 
   return (
-    <Page>
+    <Screen inset="none">
       <View style={styles.container}>
         <Text style={[styles.title, text]}>{t.title}</Text>
         <Text style={[styles.subtitle, text]}>{t.subtitle}</Text>
 
-        <FormField
-          label={t.identifier}
-          value={identifier}
-          onChangeText={setIdentifier}
-          autoCapitalize="none"
-          autoCorrect={false}
-          autoComplete="username"
-          keyboardType="email-address"
-          textContentType="username"
-          returnKeyType="next"
-        />
+        <View style={styles.form}>
+          <FormField
+            label={t.identifier}
+            icon="person-outline"
+            value={identifier}
+            onChangeText={setIdentifier}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="username"
+            keyboardType="email-address"
+            textContentType="username"
+            returnKeyType="next"
+          />
 
-        <FormField
-          label={t.password}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          autoComplete="password"
-          textContentType="password"
-          returnKeyType="go"
-          onSubmitEditing={submit}
-        />
+          <FormField
+            label={t.password}
+            icon="lock-closed-outline"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            autoComplete="password"
+            textContentType="password"
+            returnKeyType="go"
+            onSubmitEditing={submit}
+          />
+        </View>
 
         {result && (
           <Text style={[styles.result, result.kind === 'success' ? styles.success : styles.error, text]}>
@@ -98,28 +102,25 @@ export function LoginScreen() {
         )}
 
         {result?.kind === 'unverified' && result.email !== '' && (
-          <Pressable onPress={resend} disabled={resending} style={styles.textButton} accessibilityRole="button">
-            <Text style={[styles.textButtonText, text]}>{t.resend}</Text>
-          </Pressable>
+          <Button label={t.resend} variant="ghost" icon="mail-outline" loading={resending} onPress={resend} />
         )}
 
-        <Pressable
+        <Button
+          label={submitting ? t.submitting : t.submit}
+          size="lg"
+          block
+          loading={submitting}
           onPress={submit}
-          disabled={submitting}
-          style={[styles.button, submitting && styles.buttonBusy]}
-          accessibilityRole="button"
-        >
-          {submitting && <ActivityIndicator color={colors.white} />}
-          <Text style={styles.buttonText}>{submitting ? t.submitting : t.submit}</Text>
-        </Pressable>
+          style={styles.submit}
+        />
 
         <View style={[styles.switchRow, row]}>
           <Text style={styles.switchText}>{t.noAccount}</Text>
-          <Link href="/register" style={styles.switchLink}>
+          <Link href="/register" replace style={styles.switchLink}>
             {t.createAccount}
           </Link>
         </View>
       </View>
-    </Page>
+    </Screen>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native';
+import { Alert, Text, View } from 'react-native';
 import { Link, router } from 'expo-router';
 import {
   ApiError,
@@ -8,7 +8,7 @@ import {
   validateRegisterForm,
   type RegisterForm,
 } from '@runner/shared';
-import { API_URL, colors, Page, useLanguage } from '@/modules/common';
+import { API_URL, Button, Screen, useLanguage } from '@/modules/common';
 import { FormField } from './components/FormField';
 import { PasswordChecklist } from './components/PasswordChecklist';
 import { authMessages, type AuthMessages } from './messages';
@@ -70,7 +70,7 @@ export function RegisterScreen() {
         locale: lang,
       });
       Alert.alert(t.register.welcomeTitle, t.register.welcomeMessage(email), [{ text: t.register.ok }]);
-      router.replace('/');
+      router.dismissTo('/');
     } catch (error) {
       const conflict = error instanceof ApiError && error.status === 409 ? conflictErrors(error.code) : null;
       if (conflict) {
@@ -90,103 +90,110 @@ export function RegisterScreen() {
   };
 
   return (
-    <Page>
+    <Screen inset="none">
       <View style={styles.container}>
         <Text style={[styles.title, text]}>{t.register.title}</Text>
         <Text style={[styles.subtitle, text]}>{t.register.subtitle}</Text>
 
-        <FormField
-          label={t.register.fullName}
-          value={form.fullName}
-          onChangeText={update('fullName')}
-          error={fieldError('fullName')}
-          autoComplete="name"
-          textContentType="name"
-          returnKeyType="next"
-        />
+        <View style={styles.form}>
+          <FormField
+            label={t.register.fullName}
+            icon="person-outline"
+            value={form.fullName}
+            onChangeText={update('fullName')}
+            error={fieldError('fullName')}
+            autoComplete="name"
+            textContentType="name"
+            returnKeyType="next"
+          />
 
-        <FormField
-          label={t.register.email}
-          value={form.email}
-          onChangeText={update('email')}
-          error={fieldError('email')}
-          autoCapitalize="none"
-          autoCorrect={false}
-          autoComplete="email"
-          keyboardType="email-address"
-          textContentType="emailAddress"
-          returnKeyType="next"
-        />
+          <FormField
+            label={t.register.email}
+            icon="mail-outline"
+            value={form.email}
+            onChangeText={update('email')}
+            error={fieldError('email')}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="email"
+            keyboardType="email-address"
+            textContentType="emailAddress"
+            returnKeyType="next"
+          />
 
-        <FormField
-          label={t.register.username}
-          value={form.username}
-          onChangeText={update('username')}
-          error={fieldError('username')}
-          hint={t.register.usernameHint}
-          autoCapitalize="none"
-          autoCorrect={false}
-          autoComplete="username-new"
-          textContentType="username"
-          returnKeyType="next"
-        />
+          <FormField
+            label={t.register.username}
+            icon="at-outline"
+            value={form.username}
+            onChangeText={update('username')}
+            error={fieldError('username')}
+            hint={t.register.usernameHint}
+            autoCapitalize="none"
+            autoCorrect={false}
+            autoComplete="username-new"
+            textContentType="username"
+            returnKeyType="next"
+          />
 
-        <FormField
-          label={t.register.phone}
-          value={form.phone}
-          onChangeText={update('phone')}
-          error={fieldError('phone')}
-          hint={t.register.phoneHint}
-          autoComplete="tel"
-          keyboardType="phone-pad"
-          textContentType="telephoneNumber"
-          returnKeyType="next"
-        />
+          <FormField
+            label={t.register.phone}
+            icon="call-outline"
+            value={form.phone}
+            onChangeText={update('phone')}
+            error={fieldError('phone')}
+            hint={t.register.phoneHint}
+            autoComplete="tel"
+            keyboardType="phone-pad"
+            textContentType="telephoneNumber"
+            returnKeyType="next"
+          />
 
-        <FormField
-          label={t.register.password}
-          value={form.password}
-          onChangeText={update('password')}
-          error={fieldError('password')}
-          secureTextEntry
-          autoComplete="new-password"
-          textContentType="newPassword"
-          returnKeyType="next"
-        >
-          <PasswordChecklist password={form.password} labels={t.passwordChecks} />
-        </FormField>
+          <FormField
+            label={t.register.password}
+            icon="lock-closed-outline"
+            value={form.password}
+            onChangeText={update('password')}
+            error={fieldError('password')}
+            secureTextEntry
+            autoComplete="new-password"
+            textContentType="newPassword"
+            returnKeyType="next"
+          >
+            <PasswordChecklist password={form.password} labels={t.passwordChecks} />
+          </FormField>
 
-        <FormField
-          label={t.register.confirmPassword}
-          value={form.confirmPassword}
-          onChangeText={update('confirmPassword')}
-          error={fieldError('confirmPassword')}
-          secureTextEntry
-          autoComplete="new-password"
-          textContentType="newPassword"
-          returnKeyType="go"
-          onSubmitEditing={submit}
-        />
+          <FormField
+            label={t.register.confirmPassword}
+            icon="lock-closed-outline"
+            value={form.confirmPassword}
+            onChangeText={update('confirmPassword')}
+            error={fieldError('confirmPassword')}
+            secureTextEntry
+            autoComplete="new-password"
+            textContentType="newPassword"
+            returnKeyType="go"
+            onSubmitEditing={submit}
+          />
+        </View>
 
         {formError && <Text style={[styles.result, styles.error, text]}>{formError}</Text>}
 
-        <Pressable
+        <Button
+          label={submitting ? t.register.submitting : t.register.submit}
+          size="lg"
+          block
+          loading={submitting}
           onPress={submit}
-          disabled={submitting}
-          style={[styles.button, submitting && styles.buttonBusy]}
-          accessibilityRole="button"
-        >
-          {submitting && <ActivityIndicator color={colors.white} />}
-          <Text style={styles.buttonText}>{submitting ? t.register.submitting : t.register.submit}</Text>
-        </Pressable>
+          style={styles.submit}
+        />
 
         <View style={[styles.switchRow, row]}>
           <Text style={styles.switchText}>{t.register.haveAccount}</Text>
-          <Link href="/login" style={styles.switchLink}>
+          <Link href="/login" replace style={styles.switchLink}>
             {t.register.signIn}
           </Link>
         </View>
       </View>
-    </Page>
+    </Screen>
   );
 }

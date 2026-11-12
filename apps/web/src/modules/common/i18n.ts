@@ -16,6 +16,8 @@ const en = {
     previous: 'Previous events',
     contact: 'Contact us',
     signIn: 'Sign in',
+    openMenu: 'Open menu',
+    closeMenu: 'Close menu',
   },
   footer: {
     rights: 'All rights reserved.',
@@ -37,6 +39,8 @@ const ar: CommonDictionary = {
     previous: 'فعاليات سابقة',
     contact: 'تواصل معنا',
     signIn: 'تسجيل الدخول',
+    openMenu: 'فتح القائمة',
+    closeMenu: 'إغلاق القائمة',
   },
   footer: {
     rights: 'جميع الحقوق محفوظة.',

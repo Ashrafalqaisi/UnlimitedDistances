@@ -1,22 +1,29 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, useLanguage } from '@/modules/common';
+import { colors, gutter, Icon, radius, shadow, space, type, useLanguage, type IconName } from '@/modules/common';
 import { homeMessages } from '../messages';
-import { sectionStyles } from '../styles';
 
+// One icon per reason, in the same order as the messages
+const ICONS: IconName[] = ['heart', 'barbell', 'flash', 'people'];
+
+/** 2×2 grid of reasons to take part. */
 export function WhyParticipate() {
   const { t, text, row } = useLanguage(homeMessages);
 
   return (
-    <View>
-      <Text style={[sectionStyles.title, text]}>{t.whyTitle}</Text>
-      <View style={[styles.grid, row]}>
-        {t.why.map((reason, index) => (
-          <View key={reason} style={styles.item}>
-            <Text style={styles.number}>{String(index + 1).padStart(2, '0')}</Text>
+    <View style={[styles.grid, row]}>
+      {t.why.map((reason, index) => (
+        <View key={reason} style={styles.cell}>
+          <View style={styles.tile}>
+            <View style={[styles.tileTop, row]}>
+              <View style={styles.iconBox}>
+                <Icon name={ICONS[index] ?? 'star'} size={20} color={colors.brand} />
+              </View>
+              <Text style={styles.number}>{String(index + 1).padStart(2, '0')}</Text>
+            </View>
             <Text style={[styles.reason, text]}>{reason}</Text>
           </View>
-        ))}
-      </View>
+        </View>
+      ))}
     </View>
   );
 }
@@ -24,31 +31,39 @@ export function WhyParticipate() {
 const styles = StyleSheet.create({
   grid: {
     flexWrap: 'wrap',
-    paddingHorizontal: 14,
+    paddingHorizontal: gutter - space.sm / 2,
   },
-  item: {
+  cell: {
     width: '50%',
-    padding: 6,
+    padding: space.sm / 2,
+  },
+  tile: {
+    minHeight: 112,
+    padding: space.lg,
+    borderRadius: radius.lg,
+    backgroundColor: colors.white,
+    justifyContent: 'space-between',
+    ...shadow,
+  },
+  tileTop: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  iconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.md,
+    backgroundColor: colors.brandSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   number: {
-    color: colors.brand,
-    fontSize: 28,
-    fontWeight: '900',
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: 14,
-    borderTopRightRadius: 14,
-    paddingTop: 14,
-    paddingHorizontal: 14,
+    ...type.caption,
+    color: colors.subtle,
   },
   reason: {
-    fontSize: 15,
-    fontWeight: '700',
+    ...type.subheading,
     color: colors.ink,
-    backgroundColor: colors.surface,
-    borderBottomLeftRadius: 14,
-    borderBottomRightRadius: 14,
-    paddingBottom: 16,
-    paddingHorizontal: 14,
-    minHeight: 56,
+    marginTop: space.md,
   },
 });

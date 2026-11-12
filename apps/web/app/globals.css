@@ -114,14 +114,16 @@ section {
   top: 0;
   z-index: 10;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
   padding: 0.9rem 1.25rem;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  flex-shrink: 0;
 }
 
 .brand img {
@@ -130,9 +132,17 @@ section {
   width: auto;
 }
 
+.site-nav {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .nav-links {
   display: flex;
   gap: 1.5rem;
+  margin-inline: auto;
   color: var(--muted);
   font-weight: 500;
 }
@@ -141,11 +151,34 @@ section {
   color: var(--brand);
 }
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-weight: 500;
+.header-signin {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.menu-toggle {
+  display: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.menu-toggle:focus-visible,
+.nav-links a:focus-visible,
+.lang-switch:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* Keep anchored sections clear of the sticky header */
+section[id] {
+  scroll-margin-top: 5rem;
 }
 
 .lang-switch {
@@ -882,9 +915,111 @@ section {
 
 /* ---------- Responsive ---------- */
 
-@media (max-width: 720px) {
-  .nav-links {
+/* Tablet and phone: section links collapse behind the menu button */
+@media (max-width: 900px) {
+  .site-header {
+    padding: 0.6rem 1rem;
+    gap: 0.6rem;
+  }
+
+  .brand {
+    margin-inline-end: auto;
+  }
+
+  .header-signin {
+    order: 2;
+  }
+
+  .menu-toggle {
+    display: grid;
+    order: 3;
+  }
+
+  .site-nav {
     display: none;
+    position: absolute;
+    inset-block-start: 100%;
+    inset-inline: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem 1.25rem;
+    background: var(--white);
+    border-block-end: 1px solid var(--line);
+    box-shadow: 0 12px 24px rgba(20, 20, 20, 0.08);
+  }
+
+  .site-nav[data-open='true'] {
+    display: flex;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 0;
+    margin-inline: 0;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .nav-links a {
+    padding-block: 0.8rem;
+    border-block-end: 1px solid var(--line);
+  }
+
+  .site-nav .lang-switch {
+    align-self: flex-start;
+    padding: 0.4rem 1rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .brand img {
+    height: 32px;
+  }
+
+  .header-signin {
+    padding: 0.55rem 1rem;
+    font-size: 0.92rem;
+  }
+
+  .why-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .why-grid .card {
+    padding: 1rem;
+  }
+
+  .why-grid h3 {
+    font-size: 1rem;
+  }
+
+  .step-number {
+    font-size: 1.5rem;
+  }
+
+  #previous .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .gallery-item {
+    height: 160px;
+  }
+
+  .gallery-item figcaption {
+    padding: 0.5rem 0.65rem;
+    font-size: 0.85rem;
+    line-height: 1.3;
+  }
+
+  .section-head {
+    margin-block-end: 1.75rem;
+  }
+
+  .cta blockquote p {
+    font-size: 1.35rem;
   }
 
   section {
@@ -895,9 +1030,49 @@ section {
     padding-block: 4rem;
   }
 
-  .event-facts,
   .equipment-grid {
     grid-template-columns: 1fr;
+  }
+
+  .event-facts {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 1.25rem;
+  }
+
+  .event-cover {
+    min-height: 300px;
+  }
+
+  .event-cover-text {
+    padding-block: 3rem 1.75rem;
+  }
+}
+
+/* Small phones (320–380px): keep logo, sign-in and menu button on one row */
+@media (max-width: 380px) {
+  .site-header {
+    padding-inline: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .brand {
+    min-width: 0;
+  }
+
+  .brand img {
+    height: 28px;
+    max-width: 100%;
+    object-fit: contain;
+  }
+
+  .header-signin {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .menu-toggle {
+    width: 40px;
+    height: 40px;
   }
 
   .event-list li {

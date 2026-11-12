@@ -1,28 +1,59 @@
-import type { ReactNode } from 'react';
-import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
-import { colors, useLanguage } from '@/modules/common';
+import { useState, type ReactNode } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
+import { colors, Icon, radius, space, type, useLanguage, type IconName } from '@/modules/common';
+import { authMessages } from '../messages';
 import { ERROR_COLOR } from '../styles';
 
 interface FormFieldProps extends TextInputProps {
   label: string;
+  icon?: IconName;
   error?: string;
   hint?: string;
   children?: ReactNode;
 }
 
-/** Labelled text input with an optional hint, error message, and extra content below it. */
-export function FormField({ label, error, hint, children, style, ...inputProps }: FormFieldProps) {
-  const { text } = useLanguage();
+/**
+ * Labelled text input with a leading icon, focus ring, optional hint or error, and
+ * a show/hide toggle for password fields.
+ */
+export function FormField({ label, icon, error, hint, children, secureTextEntry, ...inputProps }: FormFieldProps) {
+  const { t, text, row } = useLanguage(authMessages);
+  const [focused, setFocused] = useState(false);
+  const [revealed, setRevealed] = useState(false);
 
   return (
     <View>
       <Text style={[styles.label, text]}>{label}</Text>
-      <TextInput
-        {...inputProps}
-        style={[styles.input, text, error ? styles.inputError : null, style]}
-        accessibilityLabel={label}
-        accessibilityHint={error ?? hint}
-      />
+      <View style={[styles.box, row, focused && styles.boxFocused, error ? styles.boxError : null]}>
+        {icon && <Icon name={icon} size={18} color={focused ? colors.brand : colors.subtle} />}
+        <TextInput
+          {...inputProps}
+          secureTextEntry={secureTextEntry && !revealed}
+          onFocus={(event) => {
+            setFocused(true);
+            inputProps.onFocus?.(event);
+          }}
+          onBlur={(event) => {
+            setFocused(false);
+            inputProps.onBlur?.(event);
+          }}
+          placeholderTextColor={colors.subtle}
+          selectionColor={colors.brand}
+          style={[styles.input, text]}
+          accessibilityLabel={label}
+          accessibilityHint={error ?? hint}
+        />
+        {secureTextEntry && (
+          <Pressable
+            onPress={() => setRevealed((value) => !value)}
+            hitSlop={10}
+            accessibilityRole="button"
+            accessibilityLabel={revealed ? t.hidePassword : t.showPassword}
+          >
+            <Icon name={revealed ? 'eye-off-outline' : 'eye-outline'} size={20} color={colors.muted} />
+          </Pressable>
+        )}
+      </View>
       {error ? (
         <Text style={[styles.error, text]}>{error}</Text>
       ) : hint ? (
@@ -35,33 +66,43 @@ export function FormField({ label, error, hint, children, style, ...inputProps }
 
 const styles = StyleSheet.create({
   label: {
-    fontSize: 14,
+    ...type.label,
     fontWeight: '700',
     color: colors.ink,
-    marginBottom: 6,
-    marginTop: 14,
+    marginBottom: space.sm,
   },
-  input: {
-    borderWidth: 1,
+  box: {
+    alignItems: 'center',
+    gap: space.sm,
+    minHeight: 52,
+    paddingHorizontal: space.lg,
+    borderWidth: 1.5,
     borderColor: colors.line,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: colors.ink,
-    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    backgroundColor: colors.white,
   },
-  inputError: {
+  boxFocused: {
+    borderColor: colors.brand,
+  },
+  boxError: {
     borderColor: ERROR_COLOR,
   },
+  input: {
+    flex: 1,
+    paddingVertical: space.md,
+    fontSize: 16,
+    color: colors.ink,
+  },
   error: {
-    marginTop: 5,
-    fontSize: 13,
+    ...type.caption,
+    fontWeight: '500',
+    marginTop: space.xs + 2,
     color: ERROR_COLOR,
   },
   hint: {
-    marginTop: 5,
-    fontSize: 13,
+    ...type.caption,
+    fontWeight: '400',
+    marginTop: space.xs + 2,
     color: colors.muted,
   },
 });

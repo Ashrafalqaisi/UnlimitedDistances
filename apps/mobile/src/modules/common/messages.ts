@@ -11,6 +11,12 @@ const en = {
   contactTitle: 'Contact us',
   footer: 'All rights reserved.',
   from: 'From',
+  tabs: {
+    home: 'Home',
+    races: 'Races',
+    myRaces: 'My races',
+    account: 'Account',
+  },
   status: {
     soon: 'Registration opens soon',
     open: 'Registration open',
@@ -29,6 +35,12 @@ const ar: CommonMessages = {
   contactTitle: 'تواصل معنا',
   footer: 'جميع الحقوق محفوظة.',
   from: 'ابتداءً من',
+  tabs: {
+    home: 'الرئيسية',
+    races: 'السباقات',
+    myRaces: 'سباقاتي',
+    account: 'حسابي',
+  },
   status: {
     soon: 'التسجيل يفتح قريباً',
     open: 'التسجيل مفتوح',

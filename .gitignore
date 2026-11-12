@@ -49,3 +49,12 @@ yarn-error.*
 .next/
 .turbo/
 coverage/
+
+# Ruflo local secrets and runtime data
+.env.local
+.env.*.local
+.claude-flow/data/
+.claude-flow/logs/
+.claude-flow/sessions/
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
